@@ -40,7 +40,7 @@ const login = createAppAsyncThunk<{ isLoggedIn: boolean }, LoginParamsType>(
         dispatch(appActions.setAppStatus({ status: "succeeded" }));
         return { isLoggedIn: true };
       } else {
-        handleServerAppError(res.data, dispatch);
+        handleServerAppError(res.data, dispatch, false);
         return rejectWithValue(res.data);
       }
     } catch (e) {
@@ -105,7 +105,7 @@ const initializeApp = createAppAsyncThunk<{ isLoggedIn: boolean }, undefined>(
                 // ❗ Нужна ли здесь обработки ошибки ?
                 // Нет. Т.к. пользователь при первом обращении к приложению
                 // будет видеть ошибку, что не логично
-                // handleServerAppError(res.data, dispatch);
+                handleServerAppError(res.data, dispatch, false);
                 return rejectWithValue(null);
             }
         } catch (e) {
