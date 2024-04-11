@@ -3,6 +3,7 @@ import { appActions } from "app/app.reducer";
 import { authAPI, LoginParamsType } from "features/auth/auth.api";
 import { clearTasksAndTodolists } from "common/actions";
 import { createAppAsyncThunk, handleServerAppError, handleServerNetworkError } from "common/utils";
+import {thunkTryCatch} from "../../common/utils/thunk-try-catch";
 
 const slice = createSlice({
     name: "auth",
@@ -40,7 +41,6 @@ const login = createAppAsyncThunk<{ isLoggedIn: boolean }, LoginParamsType>(
         dispatch(appActions.setAppStatus({ status: "succeeded" }));
         return { isLoggedIn: true };
       } else {
-          debugger
         const isShowAppError = !res.data.fieldsErrors.length
         handleServerAppError(res.data, dispatch, isShowAppError);
         return rejectWithValue(res.data);
@@ -95,31 +95,54 @@ const logout = createAppAsyncThunk<any>(
 // };
 
 
+// const initializeApp = createAppAsyncThunk<{ isLoggedIn: boolean }, undefined>(
+//     `${slice.name}/initializeApp`,
+//     async (_, thunkAPI) => {
+//         const { dispatch, rejectWithValue } = thunkAPI;
+//         try {
+//             const res = await authAPI.me();
+//             if (res.data.resultCode === 0) {
+//                 return { isLoggedIn: true };
+//             } else {
+//                 // ❗ Нужна ли здесь обработки ошибки ?
+//                 // Нет. Т.к. пользователь при первом обращении к приложению
+//                 // будет видеть ошибку, что не логично
+//                 handleServerAppError(res.data, dispatch, false);
+//                 return rejectWithValue(null);
+//             }
+//         } catch (e) {
+//             handleServerNetworkError(e, dispatch);
+//             return rejectWithValue(null);
+//         } finally {
+//             //❗Нам не важно как прошел запрос, в любом случе мы должны сказать,
+//             // что приложение проинициализировано
+//             dispatch(appActions.setAppInitialized({ isInitialized: true }));
+//         }
+//     }
+// );
+
+
 const initializeApp = createAppAsyncThunk<{ isLoggedIn: boolean }, undefined>(
     `${slice.name}/initializeApp`,
     async (_, thunkAPI) => {
-        const { dispatch, rejectWithValue } = thunkAPI;
-        try {
+        const {dispatch, rejectWithValue} = thunkAPI;
+        return thunkTryCatch(thunkAPI, async () => {
             const res = await authAPI.me();
             if (res.data.resultCode === 0) {
-                return { isLoggedIn: true };
+                return {isLoggedIn: true};
             } else {
                 // ❗ Нужна ли здесь обработки ошибки ?
                 // Нет. Т.к. пользователь при первом обращении к приложению
                 // будет видеть ошибку, что не логично
-                handleServerAppError(res.data, dispatch, false);
                 return rejectWithValue(null);
             }
-        } catch (e) {
-            handleServerNetworkError(e, dispatch);
-            return rejectWithValue(null);
-        } finally {
+        }).finally(() => {
             //❗Нам не важно как прошел запрос, в любом случе мы должны сказать,
             // что приложение проинициализировано
-            dispatch(appActions.setAppInitialized({ isInitialized: true }));
-        }
-    }
-);
+            dispatch(appActions.setAppInitialized({isInitialized: true}));
+        })
+    })
+
 
 
 export const authReducer = slice.reducer;
