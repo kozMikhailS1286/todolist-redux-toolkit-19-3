@@ -34,21 +34,16 @@ const login = createAppAsyncThunk<{ isLoggedIn: boolean }, LoginParamsType>(
   `${slice.name}/login`,
   async (arg, thunkAPI) => {
     const { dispatch, rejectWithValue } = thunkAPI;
-    try {
-      dispatch(appActions.setAppStatus({ status: "loading" }));
-      const res = await authAPI.login(arg);
-      if (res.data.resultCode === 0) {
-        dispatch(appActions.setAppStatus({ status: "succeeded" }));
-        return { isLoggedIn: true };
-      } else {
-        const isShowAppError = !res.data.fieldsErrors.length
-        handleServerAppError(res.data, dispatch, isShowAppError);
-        return rejectWithValue(res.data);
-      }
-    } catch (e) {
-      handleServerNetworkError(e, dispatch);
-      return rejectWithValue(null);
-    }
+    return thunkTryCatch(thunkAPI, async () => {
+        const res = await authAPI.login(arg);
+        if (res.data.resultCode === 0) {
+            return { isLoggedIn: true };
+        } else {
+            const isShowAppError = !res.data.fieldsErrors.length
+            handleServerAppError(res.data, dispatch, isShowAppError);
+            return rejectWithValue(res.data);
+        }
+    })
   },
 );
 
@@ -56,22 +51,15 @@ const logout = createAppAsyncThunk<any>(
     `${slice.name}/logout`,
     async (arg, thunkAPI) => {
         const {dispatch, rejectWithValue} = thunkAPI;
-        try {
-            dispatch(appActions.setAppStatus({status: "loading"}));
+        return thunkTryCatch(thunkAPI, async () => {
             const res = await authAPI.logout()
             if (res.data.resultCode === 0) {
-                // dispatch(authActions.setIsLoggedIn({isLoggedIn: false}));
                 dispatch(clearTasksAndTodolists());
-                dispatch(appActions.setAppStatus({status: "succeeded"}));
-                // return { isLoggedIn: false };
             } else {
                 handleServerAppError(res.data, dispatch);
                 return rejectWithValue(null);
             }
-        } catch (e) {
-            handleServerNetworkError(e, dispatch);
-            return rejectWithValue(null)
-        }
+        })
     }
 );
 
