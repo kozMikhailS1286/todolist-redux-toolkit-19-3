@@ -2,6 +2,9 @@ import { Dispatch } from "redux";
 import axios, { AxiosError } from "axios";
 import { appActions } from "app/app.reducer";
 
+/*
+This function handles network errors by checking if the error is an Axis Error
+ */
 export const handleServerNetworkError = (e: unknown, dispatch: Dispatch) => {
   const err = e as Error | AxiosError<{ error: string }>;
   if (axios.isAxiosError(err)) {

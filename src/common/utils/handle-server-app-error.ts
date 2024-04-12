@@ -2,6 +2,10 @@ import { Dispatch } from "redux";
 import { appActions } from "app/app.reducer";
 import {BaseResponseType} from "common/types/common.types";
 
+
+/*
+Provided code snippet is a function called handleServerAppError
+ */
 export const handleServerAppError = <D>(data: BaseResponseType<D>, dispatch: Dispatch, isGlobalError: boolean = true) => {
     if (isGlobalError) {
         if (data.messages.length) {
