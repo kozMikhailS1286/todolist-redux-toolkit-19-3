@@ -8,6 +8,17 @@ import { selectIsLoggedIn } from "features/auth/auth.selectors";
 import { authThunks } from "features/auth/auth.reducer";
 import {BaseResponseType} from "../../common/types/index";
 
+
+// type LoginParamsType = {
+//     email: string;
+//     password: string;
+//     rememberMe: boolean;
+//     captcha?: string;
+// }
+//
+// type FormValues = Omit<LoginParamsType, "captcha">
+
+
 export const Login = () => {
   const dispatch = useAppDispatch();
 
