@@ -11,54 +11,60 @@ import { selectIsLoggedIn } from "features/auth/auth.selectors";
 import { selectTasks } from "features/TodolistsList/tasks.selectors";
 import { selectTodolists } from "features/TodolistsList/todolists.selectors";
 import { TaskStatuses } from "common/enums";
+import {useActions} from "../../common/hooks/useActions";
 
 export const TodolistsList = () => {
   const todolists = useSelector(selectTodolists);
   const tasks = useSelector(selectTasks);
   const isLoggedIn = useSelector(selectIsLoggedIn);
 
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
+    const {fetchTodolists, removeTodolist: removeTodolistThunk, addTodolist: addTodolistThunk,
+        changeTodolistTitle: changeTodolistTitleThunk} = useActions(todolistsThunks)
+    const {addTask: addTaskThunk, removeTask: removeTaskThunk, updateTask} = useActions(tasksThunks)
+    const {changeTodolistFilter} = useActions(todolistsActions)
+
 
   useEffect(() => {
     if (!isLoggedIn) {
       return;
     }
-    dispatch(todolistsThunks.fetchTodolists());
+    fetchTodolists();
   }, []);
 
   const removeTask = useCallback(function (taskId: string, todolistId: string) {
-    dispatch(tasksThunks.removeTask({ taskId, todolistId }));
+      removeTaskThunk({ taskId, todolistId });
   }, []);
 
   const addTask = useCallback(function (title: string, todolistId: string) {
-    dispatch(tasksThunks.addTask({ title, todolistId }));
+      addTaskThunk({ title, todolistId });
   }, []);
 
   const changeStatus = useCallback(function (taskId: string, status: TaskStatuses, todolistId: string) {
-    dispatch(tasksThunks.updateTask({ taskId, domainModel: { status }, todolistId }));
+    updateTask({ taskId, domainModel: { status }, todolistId });
   }, []);
 
   const changeTaskTitle = useCallback(function (taskId: string, title: string, todolistId: string) {
-    dispatch(tasksThunks.updateTask({ taskId, domainModel: { title }, todolistId }));
+    updateTask({ taskId, domainModel: { title }, todolistId });
   }, []);
 
   const changeFilter = useCallback(function (filter: FilterValuesType, id: string) {
-    dispatch(todolistsActions.changeTodolistFilter({ id, filter }));
+    changeTodolistFilter({ id, filter });
   }, []);
 
   const removeTodolist = useCallback(function (id: string) {
-    dispatch(todolistsThunks.removeTodolist(id));
+      removeTodolistThunk(id);
   }, []);
 
   const changeTodolistTitle = useCallback(function (id: string, title: string) {
-    dispatch(todolistsThunks.changeTodolistTitle({ id, title }));
+    changeTodolistTitleThunk({ id, title });
   }, []);
 
   const addTodolist = useCallback(
     (title: string) => {
-      dispatch(todolistsThunks.addTodolist(title));
+        addTodolistThunk(title);
     },
-    [dispatch],
+    [addTodolistThunk],
   );
 
   if (!isLoggedIn) {
