@@ -3,10 +3,11 @@ import { useFormik } from "formik";
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import { Button, Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, TextField } from "@mui/material";
-import { useAppDispatch } from "common/hooks";
+// import { useAppDispatch } from "common/hooks";
 import { selectIsLoggedIn } from "features/auth/auth.selectors";
 import { authThunks } from "features/auth/auth.reducer";
 import {BaseResponseType} from "../../common/types/index";
+import {useActions} from "../../common/hooks/useActions";
 
 
 // type LoginParamsType = {
@@ -20,7 +21,9 @@ import {BaseResponseType} from "../../common/types/index";
 
 
 export const Login = () => {
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
+
+    const {login} = useActions(authThunks)
 
   const isLoggedIn = useSelector(selectIsLoggedIn);
 
@@ -43,7 +46,7 @@ export const Login = () => {
       rememberMe: false,
     },
     onSubmit: (values, formikHelpers) => {
-      dispatch(authThunks.login(values))
+      login(values)
           .unwrap()
           .then((res) => {
       })
